@@ -1,0 +1,15 @@
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: monospace;
+}
+
+table th, table td {
+  border: 3px double black;
+  padding: 8px;
+  text-align: left;
+}
+
+table th {
+  background-color: #f4f4f4;
+}

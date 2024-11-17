@@ -1,0 +1,6 @@
+root = "."  # Set the root directory of your project
+
+[build]
+  command = "go build -o build/comaho ."
+  bin = "./build/comaho"
+  watch = ["../"]

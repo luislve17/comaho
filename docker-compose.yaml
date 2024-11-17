@@ -1,0 +1,17 @@
+services:
+  comaho:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${COMAHO_PORT:-8080}:${COMAHO_PORT:-8080}"
+    volumes:
+      - comaho_data:/app/src
+    environment:
+      - COMAHO_PORT=${COMAHO_PORT:-8080}
+    restart: "no"
+    container_name: comaho
+
+volumes:
+  comaho_data:
+    driver: local
