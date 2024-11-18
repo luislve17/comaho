@@ -1,5 +1,7 @@
 body {
   font-family: monospace;
+  line-height: 1.0;
+  letter-spacing: -0.8px;
 }
 
 table {

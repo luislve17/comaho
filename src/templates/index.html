@@ -6,25 +6,11 @@
   <link rel="stylesheet" href="static/style.css"/>
   </head>
   <body>
-      <h1>Dashboard</h1>
-    
-      <p>Welcome to the dashboard!</p>
-
-      <!-- Add a table to display MediaPath -->
-      <table border="1">
-          <thead>
-              <tr>
-                  <th>Variable</th>
-                  <th>Value</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr>
-                  <td>MediaPath</td>
-                  <td>{{.MediaPath}}</td>
-              </tr>
-          </tbody>
-      </table>
+    {{if eq .MediaPath "nil"}}
+        {{template "setup-error" .}}
+    {{else}}
+        {{template "dashboard" .}}
+    {{end}}
   </body>
 </html>
 {{end}}

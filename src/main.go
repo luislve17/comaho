@@ -13,7 +13,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Load the template once
-	tmplPath := "templates/index.html"
+	tmplPath := "templates/*.html"
 	parsedTmpl, err := utils.ParseTemplates(tmplPath)
 
 	if err != nil {

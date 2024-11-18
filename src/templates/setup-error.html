@@ -1,0 +1,12 @@
+{{define "setup-error"}}
+    <h1>Welcome to Comaho!</h1>
+    <p> If you are seeing this page, it means that Comaho is running on your server, but that there is no access to a defined media folder</p>
+    <p> To solve this, please check the following:</p>
+    <ol>
+        <li> Is your environment variable <code>COMAHO_MEDIA_PATH</code> set?</li>
+        <li> For the path defined at <code>COMAHO_MEDIA_PATH</code>, do we have read access?</li>
+    </ol>
+
+    <p> (Current media folder value: <code>{{.MediaPath}}</code>)</p>
+
+{{end}}
