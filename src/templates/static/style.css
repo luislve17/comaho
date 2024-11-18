@@ -1,7 +1,10 @@
+body {
+  font-family: monospace;
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
-  font-family: monospace;
 }
 
 table th, table td {

@@ -11,7 +11,8 @@ import (
 func serveDashboard(tmpl *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		err := utils.RenderTemplate(w, tmpl, nil)
+		dashboardData := getDashboardData()
+		err := utils.RenderTemplate(w, tmpl, dashboardData)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
