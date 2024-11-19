@@ -5,7 +5,7 @@
     {{template "header" .}}
   </head>
   <body>
-    {{if ne .MediaEnvVar ""}}
+    {{if ne .ErrMsg ""}}
         {{template "setup-error" .}}
     {{else}}
         {{template "dashboard" .}}

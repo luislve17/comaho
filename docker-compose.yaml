@@ -6,11 +6,10 @@ services:
     ports:
       - "${COMAHO_PORT:-8080}:8080"
     volumes:
-      - comaho_data:/app/src
-      - ${COMAHO_MEDIA_PATH:-./media}:/app/media
+      - ${COMAHO_DOCKER_VOLUME_PATH:-./media}:/app/media
     environment:
       - COMAHO_PORT=${COMAHO_PORT:-8080}
-      - COMAHO_MEDIA_PATH=${COMAHO_MEDIA_PATH:-nil}
+      - COMAHO_DOCKER_VOLUME_PATH=${COMAHO_DOCKER_VOLUME_PATH}
     restart: "no"
     container_name: comaho
   test:

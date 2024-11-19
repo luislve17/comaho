@@ -29,9 +29,6 @@ COPY --from=builder /app/src/templates /app/templates
 # Expose the default port (this can be overridden by an environment variable)
 EXPOSE 8080
 
-# Set the environment variable COMAHO_PORT to the default value
-ENV COMAHO_PORT=8080
-
 # Command to run the Go application
 CMD ["./comaho"]
 
