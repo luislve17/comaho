@@ -4,26 +4,41 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert" // Popular assertion library for cleaner test outputs
+	"github.com/stretchr/testify/assert"
+
+	"github.com/luislve17/comaho/utils"
 )
 
-// TestGetMediaPath tests the getMediaPath function
-func TestGetMediaPath(t *testing.T) {
-	// Backup and defer restoration of COMAHO_MEDIA_PATH env variable
-	originalPath := os.Getenv("COMAHO_MEDIA_PATH")
-	defer os.Setenv("COMAHO_MEDIA_PATH", originalPath)
+func TestGetMediaPath_NoEnvVar(t *testing.T) {
+	os.Unsetenv("COMAHO_MEDIA_PATH")
 
-	// Set up the test environment
-	t.Setenv("COMAHO_MEDIA_PATH", "/app/media")
+	fsChecker := utils.CanReadDir
+	mediaPath, err := getMediaPath(fsChecker)
 
-	// Create a fake directory structure if necessary
-	os.MkdirAll("/app/media", 0755)  // Mock directory creation
-	defer os.RemoveAll("/app/media") // Cleanup after test
+	assert.ErrorIs(t, err, ErrEnvVarNotSet)
+	assert.Equal(t, "null", mediaPath)
+}
 
-	// Execute the function
-	path, err := getMediaPath()
+func TestGetMediaPath_UnreachablePath(t *testing.T) {
+	tempDir := t.TempDir()
 
-	// Validate the results
-	assert.NoError(t, err, "Expected no error when the media path exists and is accessible")
-	assert.Equal(t, "/app/media", path, "Expected media path to match the environment variable")
+	err := os.Chmod(tempDir, 0000)
+	assert.NoError(t, err, "Failed to set permissions for testing")
+
+	os.Setenv("COMAHO_MEDIA_PATH", tempDir)
+
+	mediaPath, err := getMediaPath(utils.CanReadDir)
+
+	assert.Error(t, err, "Expected an error for an unreadable path")
+	assert.Equal(t, tempDir, mediaPath, "Expected media path to be set, when path exists but is unreadable")
+}
+
+func TestGetMediaPath_ValidPath(t *testing.T) {
+	tempDir := t.TempDir()
+	os.Setenv("COMAHO_MEDIA_PATH", tempDir)
+
+	mediaPath, err := getMediaPath(utils.CanReadDir)
+
+	assert.NoError(t, err, "Expected no error for a valid path")
+	assert.Equal(t, tempDir, mediaPath+"foo", "Expected media path to match the temporary directory")
 }

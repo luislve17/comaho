@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -13,18 +14,25 @@ type DashboardData struct {
 	MediaErrMsg string
 }
 
-func getMediaPath() (string, error) {
-	MEDIA_PATH := "/app/media"
-	err := utils.CanReadDir(MEDIA_PATH)
-	if err != nil {
-		log.Printf("Couldn't access path. %s...\n", err.Error())
-		return "nil", err
+var ErrEnvVarNotSet = fmt.Errorf("environment variable COMAHO_MEDIA_PATH not set")
+
+func getMediaPath(fsChecker func(string) error) (string, error) {
+	envMediaPath := os.Getenv("COMAHO_MEDIA_PATH")
+	if envMediaPath == "" {
+		log.Println(ErrEnvVarNotSet.Error())
+		return "null", ErrEnvVarNotSet
 	}
-	return MEDIA_PATH, nil
+
+	if err := fsChecker(envMediaPath); err != nil {
+		log.Printf("Path is not accessible: %s\n", err.Error())
+		return envMediaPath, err
+	}
+
+	return envMediaPath, nil
 }
 
 func getDashboardData() DashboardData {
-	mediaPath, mediaAccessErr := getMediaPath()
+	mediaPath, mediaAccessErr := getMediaPath(utils.CanReadDir)
 
 	var mediaErrMsg string
 	if mediaAccessErr != nil {
