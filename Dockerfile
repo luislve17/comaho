@@ -3,7 +3,7 @@ FROM golang:1.22.8-alpine AS builder
 
 WORKDIR /app
 
-# Copy the application code into the container (including frontend)
+# Copy the application code into the container
 COPY . .
 
 # Set the working directory to where `go.mod` is located

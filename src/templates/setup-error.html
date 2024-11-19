@@ -7,6 +7,16 @@
         <li> For the path defined at <code>COMAHO_MEDIA_PATH</code>, do we have read access?</li>
     </ol>
 
-    <p> (Current media folder value: <code>{{.MediaPath}}</code>)</p>
+    <h3> Status summary: </h3>
+    <ol>
+        <li> Current <code>COMAHO_MEDIA_PATH</code> value: <code>{{.MediaEnvVar}}</code></li>
+        <li> Current found error:
+            {{if ne .MediaErrMsg nil}}
+                <code>{{.MediaErrMsg}}</code>
+            {{else}}
+                <code>nil</code>
+            {{end}}
+        </li>
+    </ol>
 
 {{end}}

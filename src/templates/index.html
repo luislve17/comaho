@@ -2,11 +2,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yegor256/tacit@gh-pages/tacit-css-1.8.1.min.css"/>
-  <link rel="stylesheet" href="static/style.css"/>
+    {{template "header" .}}
   </head>
   <body>
-    {{if eq .MediaPath "nil"}}
+    {{if ne .MediaEnvVar ""}}
         {{template "setup-error" .}}
     {{else}}
         {{template "dashboard" .}}
