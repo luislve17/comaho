@@ -1,19 +1,19 @@
 {{define "library-table"}}
 <table>
   <thead>
-      <tr>
-          <th>Id</th>
-          <th>Name</th>
-          <th>Last modified</th>
-      </tr>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Last modified</th>
+    </tr>
   </thead>
   <tbody>
     {{range $coma := .LibData.ComicAndMangaData}}
-      <tr>
-          <td>{{$coma.Id}}</td>
-          <td>{{$coma.Name}}</td>
-          <td>{{$coma.LastModified}}</td>
-      </tr>
+    <tr onclick="window.location='/{{$coma.Id}}-{{$coma.Name}}';">
+      <td>{{$coma.Id}}</td>
+      <td>{{$coma.Name}}</td>
+      <td>{{$coma.LastModified}}</td>
+    </tr>
     {{end}}
   </tbody>
 </table>
