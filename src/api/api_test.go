@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetMediaPath_NoEnvVar(t *testing.T) {
+func TestGetMediaPath_LocalNoEnvVar(t *testing.T) {
 	os.Unsetenv("COMAHO_MEDIA_PATH")
 	os.Unsetenv("COMAHO_DOCKER_VOLUME_PATH")
 
@@ -19,7 +19,7 @@ func TestGetMediaPath_NoEnvVar(t *testing.T) {
 	assert.Equal(t, "null", mediaPath)
 }
 
-func TestGetMediaPath_UnreachablePath(t *testing.T) {
+func TestGetMediaPath_LocalUnreachablePath(t *testing.T) {
 	os.Unsetenv("COMAHO_DOCKER_VOLUME_PATH")
 
 	// Create temp directory and set permissions to make it unreadable
@@ -40,7 +40,7 @@ func TestGetMediaPath_UnreachablePath(t *testing.T) {
 	assert.Equal(t, tempDir, mediaPath, "Expected media path to be set, when path exists but is unreadable")
 }
 
-func TestGetMediaPath_ValidPath(t *testing.T) {
+func TestGetMediaPath_LocalValidPath(t *testing.T) {
 	os.Unsetenv("COMAHO_DOCKER_VOLUME_PATH")
 
 	tempDir := t.TempDir()
@@ -50,4 +50,22 @@ func TestGetMediaPath_ValidPath(t *testing.T) {
 
 	assert.NoError(t, err, "Expected no error for a valid path")
 	assert.Equal(t, tempDir, mediaPath, "Expected media path to match the temporary directory")
+}
+
+func TestGetMediaPath_DockerValidPath(t *testing.T) {
+	// Unset the local media path to avoid interference
+	os.Unsetenv("COMAHO_MEDIA_PATH")
+
+	// Simulate a Docker environment with a valid volume path
+	os.Setenv("COMAHO_DOCKER_VOLUME_PATH", "/app/media")
+
+	// Mock the "/app/media" directory as valid and accessible
+	err := os.MkdirAll("/app/media", 0755)
+	assert.NoError(t, err, "Failed to create mock Docker volume directory")
+	defer os.RemoveAll("/app/media") // Clean up after the test
+
+	mediaPath, err := getMediaPath(utils.CanReadDir)
+
+	assert.NoError(t, err, "Expected no error for a valid Docker volume path")
+	assert.Equal(t, "/app/media", mediaPath, "Expected media path to match the Docker volume path")
 }
