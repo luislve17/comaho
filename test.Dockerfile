@@ -21,5 +21,5 @@ RUN mkdir -p /go/pkg/mod && chown -R appuser:appgroup /go
 # Switch to non-root user
 USER appuser
 
-CMD ["go", "test", "-failfast", "./..."]
+CMD ["go", "test", "-failfast", "-v", "./..."]
 

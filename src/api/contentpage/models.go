@@ -5,3 +5,9 @@ type ContentPageData struct {
 	Name   string
 	Author string
 }
+
+type ParsedURL struct {
+	Type *string
+	ID   *string
+	Name string
+}

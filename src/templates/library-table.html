@@ -9,7 +9,7 @@
   </thead>
   <tbody>
     {{range $coma := .LibData.ComicAndMangaData}}
-    <tr onclick="window.location='/{{$coma.Id}}-{{$coma.Name}}';">
+    <tr class="clickable" onclick="window.location='/{{$coma.Id}}-{{$coma.Name}}';">
       <td>{{$coma.Id}}</td>
       <td>{{$coma.Name}}</td>
       <td>{{$coma.LastModified}}</td>
