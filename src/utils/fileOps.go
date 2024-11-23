@@ -22,5 +22,6 @@ func CanReadDir(path string) error {
 		return fmt.Errorf("directory is not readable: %w", err)
 	}
 
-	return nil // Directory is readable
+	log.Printf("Directory is readable %s\n", path)
+	return nil
 }

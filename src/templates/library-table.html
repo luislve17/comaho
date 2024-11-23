@@ -2,27 +2,19 @@
 <table>
   <thead>
       <tr>
-          <th>ID</th>
+          <th>Id</th>
           <th>Name</th>
-          <th>Age</th>
+          <th>Last modified</th>
       </tr>
   </thead>
   <tbody>
+    {{range $coma := .LibData.ComicAndMangaData}}
       <tr>
-          <td>1</td>
-          <td>John Doe</td>
-          <td>28</td>
+          <td>{{$coma.Id}}</td>
+          <td>{{$coma.Name}}</td>
+          <td>{{$coma.LastModified}}</td>
       </tr>
-      <tr>
-          <td>2</td>
-          <td>Jane Smith</td>
-          <td>34</td>
-      </tr>
-      <tr>
-          <td>3</td>
-          <td>Emily Johnson</td>
-          <td>22</td>
-      </tr>
+    {{end}}
   </tbody>
 </table>
 {{end}}

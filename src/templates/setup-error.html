@@ -9,12 +9,12 @@
 
     <h3> Status summary: </h3>
     <ol>
-        <li> <code>Used media path</code>: <code>{{.MediaPath}}</code></li>
-        <li> <code>COMAHO_MEDIA_PATH</code>: <code>{{.MediaPathEnvVar}}</code></li>
-        <li> <code>COMAHO_DOCKER_VOLUME_PATH</code>: <code>{{.DockerVolumePathEnvVar}}</code></li>
+        <li> <code>Used media path</code>: <code>{{.EnvData.MediaPath}}</code></li>
+        <li> <code>COMAHO_MEDIA_PATH</code>: <code>{{.EnvData.MediaPathEnvVar}}</code></li>
+        <li> <code>COMAHO_DOCKER_VOLUME_PATH</code>: <code>{{.EnvData.DockerVolumePathEnvVar}}</code></li>
         <li> Current found error:
-            {{if ne .ErrMsg nil}}
-                <code>{{.ErrMsg}}</code>
+            {{if ne .EnvData.ErrMsg nil}}
+                <code>{{.EnvData.ErrMsg}}</code>
             {{else}}
                 <code>nil</code>
             {{end}}
