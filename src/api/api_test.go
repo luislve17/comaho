@@ -4,13 +4,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/luislve17/comaho/utils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetMediaPath_NoEnvVar(t *testing.T) {
 	os.Unsetenv("COMAHO_MEDIA_PATH")
+	os.Unsetenv("COMAHO_DOCKER_VOLUME_PATH")
 
 	fsChecker := utils.CanReadDir
 	mediaPath, err := getMediaPath(fsChecker)
@@ -20,10 +20,17 @@ func TestGetMediaPath_NoEnvVar(t *testing.T) {
 }
 
 func TestGetMediaPath_UnreachablePath(t *testing.T) {
-	tempDir := t.TempDir()
+	os.Unsetenv("COMAHO_DOCKER_VOLUME_PATH")
 
+	// Create temp directory and set permissions to make it unreadable
+	tempDir := t.TempDir()
 	err := os.Chmod(tempDir, 0000)
 	assert.NoError(t, err, "Failed to set permissions for testing")
+
+	// Temp directory should not be readable
+	info, statErr := os.Stat(tempDir)
+	assert.NoError(t, statErr, "TempDir should exist")
+	assert.False(t, info.Mode().Perm()&0400 != 0, "Directory should not be readable")
 
 	os.Setenv("COMAHO_MEDIA_PATH", tempDir)
 
@@ -34,11 +41,13 @@ func TestGetMediaPath_UnreachablePath(t *testing.T) {
 }
 
 func TestGetMediaPath_ValidPath(t *testing.T) {
+	os.Unsetenv("COMAHO_DOCKER_VOLUME_PATH")
+
 	tempDir := t.TempDir()
 	os.Setenv("COMAHO_MEDIA_PATH", tempDir)
 
 	mediaPath, err := getMediaPath(utils.CanReadDir)
 
 	assert.NoError(t, err, "Expected no error for a valid path")
-	assert.Equal(t, tempDir, mediaPath+"foo", "Expected media path to match the temporary directory")
+	assert.Equal(t, tempDir, mediaPath, "Expected media path to match the temporary directory")
 }

@@ -12,4 +12,14 @@ WORKDIR /app/src
 # Download dependencies and build the Go application
 RUN go mod tidy
 
-CMD ["go", "test", "-v", "./..."] 
+# Create a non-root user and switch to it
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Fix permissions for the Go module cache and related directories
+RUN mkdir -p /go/pkg/mod && chown -R appuser:appgroup /go
+
+# Switch to non-root user
+USER appuser
+
+CMD ["go", "test", "-failfast", "./..."]
+
