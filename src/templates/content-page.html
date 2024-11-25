@@ -1,18 +1,49 @@
 {{define "content-page"}}
-<table>
-  <thead>
-    <tr>
-      <th>Image url</th>
-      <th>Name</th>
-      <th>Author</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><img src={{.ImgURL}} alt="Cover"></td>
-      <td>{{.Name}}</td>
-      <td>{{.Author}}</td>
-    </tr>
-  </tbody>
-</table>
+<div class="container">
+  <div class="row middle-xs">
+    <div class="col-xs-4">
+      <img src={{.Summary.ImgURL}} alt="Cover" style="max-width: 100%; border: 2px solid black;">
+    </div>
+    <div class="col-xs-8">
+      <div>
+        <h1><em>{{.Summary.Name}}</em></h1>
+        <h2>({{.Summary.Published}})</h2>
+        <p>
+          {{range $author := .Summary.Authors}}
+          {{$author}};
+          {{end}}
+        </p>
+
+        <p>
+          {{range $genre:= .Summary.Genres}}
+          {{$genre}},
+          {{end}}
+        </p>
+
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="content-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>*</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{range $item := .Content}}
+            <tr>
+              <td>{{$item}}</td>
+              <td>Get</td>
+            </tr>
+            {{end}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 {{end}}

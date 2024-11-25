@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
+	"time"
 
 	"github.com/luislve17/comaho/utils"
 	"github.com/tidwall/gjson"
@@ -18,8 +20,8 @@ import (
 func ServeContentPage(tmpl *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		dashboardData := getContentPageData(r)
-		err := utils.RenderTemplate(w, tmpl, "content-index", dashboardData)
+		contentPageData := getContentPageData(r)
+		err := utils.RenderTemplate(w, tmpl, "content-index", contentPageData)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -32,21 +34,40 @@ func getContentPageData(req *http.Request) ContentPageData {
 	fullURL := req.URL.String()
 	parsedURLData := parseURLPath(fullURL)
 	refreshMetadata(parsedURLData)
-	rawMetadata, err := readMetadataFromFile(parsedURLData)
-	if err != nil || rawMetadata == nil {
-		log.Printf("Error reading metadata: %v", err)
+
+	contentSummary := ContentSummary{
+		ImgURL:    "",
+		Name:      "",
+		Published: "",
+		Authors:   []string{},
+		Genres:    []string{},
+	}
+
+	content := []string{}
+
+	rawMetadata, metadataErr := readMetadataFromFile(parsedURLData)
+	existentContent, contentErr := readAvailableContentFromFile(parsedURLData)
+
+	if metadataErr != nil || rawMetadata == nil || contentErr != nil || existentContent == nil {
+		log.Printf("Error reading metadata: %v||%v", metadataErr, contentErr)
 		return ContentPageData{
-			ImgURL: "",
-			Name:   "",
-			Author: "",
+			Summary: contentSummary,
+			Content: content,
 		}
 	}
-	result := ContentPageData{
-		ImgURL: gjson.Get(*rawMetadata, "data.images.jpg.image_url").Str,
-		Name:   gjson.Get(*rawMetadata, "data.title").Str,
-		Author: gjson.Get(*rawMetadata, "data.authors.0.name").Str,
+
+	contentSummary = ContentSummary{
+		ImgURL:    gjson.Get(*rawMetadata, "data.images.jpg.image_url").Str,
+		Name:      gjson.Get(*rawMetadata, "data.title").Str,
+		Published: extractDate(gjson.Get(*rawMetadata, "data.published.from").Str),
+		Authors:   getAuthorsNames(*rawMetadata),
+		Genres:    getGenres(*rawMetadata),
 	}
-	return result
+	content = existentContent
+	return ContentPageData{
+		Summary: contentSummary,
+		Content: content,
+	}
 }
 
 func parseURLPath(path string) ParsedURL {
@@ -180,4 +201,69 @@ func readMetadataFromFile(parsedURLData ParsedURL) (*string, error) {
 
 	rawData := string(data)
 	return &rawData, nil
+}
+
+func readAvailableContentFromFile(parsedURLData ParsedURL) ([]string, error) {
+	if parsedURLData.Type == nil || parsedURLData.ID == nil {
+		return nil, nil
+	}
+
+	folderName := fmt.Sprintf("(%s-%s) %s", *parsedURLData.Type, *parsedURLData.ID, parsedURLData.Name)
+	contentPath := filepath.Join("media", folderName)
+
+	if _, err := os.Stat(contentPath); os.IsNotExist(err) {
+		return nil, err
+	}
+
+	supportedExtensions := map[string]bool{
+		".zip": true,
+		".cbz": true,
+		".rar": true,
+		".cbr": true,
+	}
+
+	var files []string
+
+	err := filepath.Walk(contentPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		// Check if it's a file and has a valid extension
+		if !info.IsDir() && supportedExtensions[strings.ToLower(filepath.Ext(info.Name()))] {
+			files = append(files, filepath.Base(path))
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
+}
+
+func getAuthorsNames(metadata string) []string {
+	var authors []string
+	gjson.Get(metadata, "data.authors").ForEach(func(_, author gjson.Result) bool {
+		authors = append(authors, author.Get("name").String())
+		return true
+	})
+	return authors
+}
+
+func extractDate(datetime string) string {
+	parsedTime, err := time.Parse(time.RFC3339, datetime)
+	if err != nil {
+		return ""
+	}
+	return parsedTime.Format("2006-01-02")
+}
+
+func getGenres(metadata string) []string {
+	var genres []string
+	gjson.Get(metadata, "data.genres").ForEach(func(_, genre gjson.Result) bool {
+		genres = append(genres, genre.Get("name").String())
+		return true
+	})
+	return genres
 }

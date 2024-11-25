@@ -1,9 +1,16 @@
 package contentpage
 
 type ContentPageData struct {
-	ImgURL string
-	Name   string
-	Author string
+	Summary ContentSummary
+	Content []string
+}
+
+type ContentSummary struct {
+	ImgURL    string
+	Name      string
+	Published string
+	Authors   []string
+	Genres    []string
 }
 
 type ParsedURL struct {
