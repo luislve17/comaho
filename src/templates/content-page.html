@@ -34,10 +34,18 @@
             </tr>
           </thead>
           <tbody>
-            {{range $item := .Content}}
+            {{range $index, $item := .Content}}
             <tr>
               <td>{{$item}}</td>
-              <td>Get</td>
+              <td>
+                <a href="https://httpbin.org/delay/2" hx-get="https://httpbin.org/delay/2"
+                  hx-indicator="#loading-{{$index}}" class="download-link">
+                  Get
+                </a>
+                <span id="loading-{{$index}}" class="htmx-indicator" style="display:none;">
+                  Loading...
+                </span>
+              </td>
             </tr>
             {{end}}
           </tbody>
