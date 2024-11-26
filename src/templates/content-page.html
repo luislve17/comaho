@@ -43,7 +43,7 @@
               <td>
                 <a href="https://httpbin.org/delay/2" hx-post="{{$summary.CurrentPath}}/download/{{$item}}"
                   hx-trigger="click" hx-swap="none" hx-on::before-request="this.innerText = 'Loading...';"
-                  hx-on::after-request="this.innerText = 'Get';" hx-redirect="true">Get</a>
+                  hx-on::after-request="this.innerText = 'Get (.epub)';" hx-redirect="true">Get (.epub)</a>
               </td>
             </tr>
             {{end}}
