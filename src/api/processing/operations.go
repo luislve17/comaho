@@ -8,42 +8,43 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/gorilla/mux"
 	"github.com/luislve17/comaho/utils"
 )
 
-func DownloadContent() http.HandlerFunc {
+func ConvertContent() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		parsedURLData := utils.ParseURLPath(r.PathValue("name"))
+		vars := mux.Vars(r)
+		parsedURLData := utils.ParseURLPath(vars["name"])
 		pathInfo := utils.GetContentPath(parsedURLData)
-		sourcePath := filepath.Join(pathInfo, r.PathValue("item"))
-		downloadPath := ConvertComic2Ebook(sourcePath)
-		log.Printf("Downloading: %s", downloadPath)
+		sourcePath := filepath.Join(pathInfo, vars["item"])
 
-		if _, err := os.Stat(downloadPath); os.IsNotExist(err) {
-			log.Printf("File not found: %s", downloadPath)
-			http.Error(w, "File not found", http.StatusNotFound)
-			return
-		}
+		go ConvertComic2Ebook(sourcePath)
 
-		w.Header().Set("HX-Redirect", downloadPath)
 		w.WriteHeader(http.StatusOK)
+		// w.Write([]byte("Conversion started. You will be notified when it's done."))
 	}
 }
 
-func ConvertComic2Ebook(comicPath string) string {
+func ConvertComic2Ebook(comicPath string) {
 	outputFilePath := removeExtensions(comicPath) + ".kepub.epub"
 	log.Printf("Expected output file: %s", outputFilePath)
+
+	if _, err := os.Stat(outputFilePath); err == nil {
+		log.Printf("File already exists, skipping conversion: %s", outputFilePath)
+		return
+	}
+
 	command := fmt.Sprintf("kcc-c2e.py -p KoL -m '%s' -o '%s'", comicPath, outputFilePath)
 	log.Printf("Attempting conversion: %s", command)
 	cmd := exec.Command("sh", "-c", command)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Printf("Error: %v", err)
-		return ""
+		log.Printf("Error during conversion: %v", err)
+		return
 	}
-	log.Printf(string(output))
-	return outputFilePath
+	log.Printf("Conversion completed: %s", string(output))
 }
 
 func removeExtensions(filePath string) string {

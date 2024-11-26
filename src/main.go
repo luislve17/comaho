@@ -4,15 +4,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/luislve17/comaho/api"
 	"github.com/luislve17/comaho/utils"
 )
 
 func main() {
 	DEFAULT_PORT := "8080"
-	mux := http.NewServeMux()
+	r := mux.NewRouter()
 
-	// Load the template once
 	tmplPath := "templates/*.html"
 	parsedTmpl, err := utils.ParseTemplates(tmplPath)
 
@@ -21,19 +21,15 @@ func main() {
 		return
 	}
 
-	api.RegisterRoutes(mux, parsedTmpl)
+	api.RegisterRoutes(r, parsedTmpl)
 
 	// Start the server
 	log.Printf("Server starting on port %s...\n", DEFAULT_PORT)
 	server := &http.Server{
 		Addr:    ":" + DEFAULT_PORT,
-		Handler: mux,
+		Handler: r,
 	}
 	log.Println("Listening...")
 	log.Println(server.Addr)
-	err = server.ListenAndServe()
-	if err != nil {
-		log.Printf("Server error %s...\n", err)
-		return
-	}
+	log.Fatal(server.ListenAndServe())
 }
