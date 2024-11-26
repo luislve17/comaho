@@ -6,15 +6,10 @@ type ContentPageData struct {
 }
 
 type ContentSummary struct {
-	ImgURL    string
-	Name      string
-	Published string
-	Authors   []string
-	Genres    []string
-}
-
-type ParsedURL struct {
-	Type *string
-	ID   *string
-	Name string
+	CurrentPath string
+	ImgURL      string
+	Name        string
+	Published   string
+	Authors     []string
+	Genres      []string
 }

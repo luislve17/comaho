@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -32,15 +31,16 @@ func ServeContentPage(tmpl *template.Template) http.HandlerFunc {
 
 func getContentPageData(req *http.Request) ContentPageData {
 	fullURL := req.URL.String()
-	parsedURLData := parseURLPath(fullURL)
+	parsedURLData := utils.ParseDirPath(fullURL)
 	refreshMetadata(parsedURLData)
 
 	contentSummary := ContentSummary{
-		ImgURL:    "",
-		Name:      "",
-		Published: "",
-		Authors:   []string{},
-		Genres:    []string{},
+		CurrentPath: req.URL.String(),
+		ImgURL:      "",
+		Name:        "",
+		Published:   "",
+		Authors:     []string{},
+		Genres:      []string{},
 	}
 
 	content := []string{}
@@ -50,11 +50,12 @@ func getContentPageData(req *http.Request) ContentPageData {
 
 	if rawMetadata != nil {
 		contentSummary = ContentSummary{
-			ImgURL:    gjson.Get(*rawMetadata, "data.images.jpg.image_url").Str,
-			Name:      gjson.Get(*rawMetadata, "data.title").Str,
-			Published: extractDate(gjson.Get(*rawMetadata, "data.published.from").Str),
-			Authors:   getAuthorsNames(*rawMetadata),
-			Genres:    getGenres(*rawMetadata),
+			CurrentPath: req.URL.String(),
+			ImgURL:      gjson.Get(*rawMetadata, "data.images.jpg.image_url").Str,
+			Name:        gjson.Get(*rawMetadata, "data.title").Str,
+			Published:   extractDate(gjson.Get(*rawMetadata, "data.published.from").Str),
+			Authors:     getAuthorsNames(*rawMetadata),
+			Genres:      getGenres(*rawMetadata),
 		}
 	}
 	if existentContent != nil {
@@ -67,39 +68,7 @@ func getContentPageData(req *http.Request) ContentPageData {
 	}
 }
 
-func parseURLPath(path string) ParsedURL {
-	// Define regex to match the components of the URL
-	log.Printf("Entered: %s", path)
-	regex := regexp.MustCompile(`^/(?:([A-Z]+)-)?(?:([0-9]+)-)?-?([A-Za-z0-9_]+)$`)
-
-	// Match the URL against the regex
-	matches := regex.FindStringSubmatch(path)
-	if len(matches) == 4 {
-		var idType, id *string
-		if matches[1] != "" {
-			idType = &matches[1]
-		}
-		if matches[2] != "" {
-			id = &matches[2]
-		}
-		name := matches[3]
-
-		// Always return the name component (matches[3])
-		return ParsedURL{
-			Type: idType,
-			ID:   id,
-			Name: name,
-		}
-	}
-
-	return ParsedURL{
-		Type: nil,
-		ID:   nil,
-		Name: "",
-	}
-}
-
-func refreshMetadata(parsedURLData ParsedURL) error {
+func refreshMetadata(parsedURLData utils.ParsedURL) error {
 	if parsedURLData.Type == nil || *parsedURLData.Type != "MAL" || parsedURLData.ID == nil {
 		fmt.Println("Type is not MAL or ID is missing. Skipping metadata refresh.")
 		return nil
@@ -148,7 +117,7 @@ func fetchMALMetadata(id string) ([]byte, error) {
 	return body, nil
 }
 
-func writeMetadataToFile(parsedURLData ParsedURL, data []byte) error {
+func writeMetadataToFile(parsedURLData utils.ParsedURL, data []byte) error {
 	// Construct the folder path
 	folderName := fmt.Sprintf("(%s-%s) %s", *parsedURLData.Type, *parsedURLData.ID, parsedURLData.Name)
 	mediaFolder := filepath.Join("media", folderName)
@@ -179,7 +148,7 @@ func writeMetadataToFile(parsedURLData ParsedURL, data []byte) error {
 	return nil
 }
 
-func readMetadataFromFile(parsedURLData ParsedURL) *string {
+func readMetadataFromFile(parsedURLData utils.ParsedURL) *string {
 	if parsedURLData.Type == nil || parsedURLData.ID == nil {
 		log.Printf("URL ID type and value are nil")
 		return nil
@@ -203,15 +172,8 @@ func readMetadataFromFile(parsedURLData ParsedURL) *string {
 	return &rawData
 }
 
-func readAvailableContentFromDir(parsedURLData ParsedURL) []string {
-	var contentPath string
-	if parsedURLData.Type == nil || parsedURLData.ID == nil {
-		contentPath = filepath.Join("media", parsedURLData.Name)
-	} else {
-
-		folderName := fmt.Sprintf("(%s-%s) %s", *parsedURLData.Type, *parsedURLData.ID, parsedURLData.Name)
-		contentPath = filepath.Join("media", folderName)
-	}
+func readAvailableContentFromDir(parsedURLData utils.ParsedURL) []string {
+	contentPath := utils.GetContentPath(parsedURLData)
 
 	if _, err := os.Stat(contentPath); os.IsNotExist(err) {
 		log.Printf("Directory path not found %v", err)
@@ -239,7 +201,7 @@ func readAvailableContentFromDir(parsedURLData ParsedURL) []string {
 	})
 
 	if err != nil {
-		log.Printf("Error while traversing directory", err)
+		log.Printf("Error while traversing directory %v", err)
 		return nil
 	}
 
