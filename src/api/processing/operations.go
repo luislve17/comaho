@@ -2,6 +2,7 @@ package processing
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -21,8 +22,59 @@ func ConvertContent() http.HandlerFunc {
 
 		go ConvertComic2Ebook(sourcePath)
 
+		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
-		// w.Write([]byte("Conversion started. You will be notified when it's done."))
+	}
+}
+func DownloadConvertedContent() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		parsedURLData := utils.ParseURLPath(vars["name"])
+		pathInfo := utils.GetContentPath(parsedURLData)
+		sourcePath := filepath.Join(pathInfo, vars["item"])
+
+		log.Printf("source path: %s", sourcePath)
+
+		outputFilePath := removeExtensions(sourcePath) + ".kepub.epub"
+
+		if _, err := os.Stat(outputFilePath); os.IsNotExist(err) {
+			// Log if the file is not found
+			log.Printf("File not found: %s", outputFilePath)
+			http.Error(w, "Converted file not found", http.StatusNotFound)
+			return
+		}
+
+		log.Printf("Found file to download: %s", outputFilePath)
+
+		w.Header().Set("Content-Type", "application/epub+zip") // Adjust this to the appropriate content type
+		w.Header().Set("Content-Disposition", "attachment; filename="+filepath.Base(outputFilePath))
+
+		// Open the file and copy its contents to the response
+		file, err := os.Open(outputFilePath)
+		if err != nil {
+			log.Printf("Error opening file: %v", err)
+			http.Error(w, "Error opening file", http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		fileInfo, err := file.Stat()
+		if err != nil {
+			log.Printf("Error getting file size: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
+
+		_, err = io.Copy(w, file)
+		if err != nil {
+			log.Printf("Error writing file content: %v", err)
+			http.Error(w, "Error writing file", http.StatusInternalServerError)
+			return
+		}
+
+		// File download initiated successfully
+		log.Printf("File download initiated: %s", outputFilePath)
 	}
 }
 
@@ -56,4 +108,13 @@ func removeExtensions(filePath string) string {
 		filePath = filePath[:len(filePath)-len(ext)]
 	}
 	return filePath
+}
+
+func getFileSize(filePath string) int64 {
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		log.Printf("Error getting file size: %v", err)
+		return 0
+	}
+	return fileInfo.Size()
 }

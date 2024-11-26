@@ -7,4 +7,5 @@ restart: down
 test:
 	docker compose up --build test
 
-
+prune:
+	sudo docker system prune -af

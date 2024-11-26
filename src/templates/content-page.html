@@ -42,10 +42,18 @@
             <tr>
               <td>{{$item}}</td>
               <td>
-                <a href="{{$summary.CurrentPath}}/convert/{{$item}}" hx-get="{{$summary.CurrentPath}}/convert/{{$item}}"
-                  hx-trigger="click" hx-swap="none">Convert</a>
+                <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+                <form action="{{$summary.CurrentPath}}/convert/{{$item}}" method="get" target="dummyframe">
+                  <button type="submit">Convert</button>
+                </form>
               </td>
-              <td>Download (.epub)</td>
+
+              <td>
+                <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+                <form action="{{$summary.CurrentPath}}/download/{{$item}}" method="get" target="dummyframe">
+                  <button type="submit">Download</button>
+                </form>
+              </td>
             </tr>
             {{end}}
           </tbody>
