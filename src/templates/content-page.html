@@ -2,7 +2,9 @@
 <div class="container">
   <div class="row middle-xs">
     <div class="col-xs-4">
+      {{if ne .Summary.ImgURL ""}}
       <img src={{.Summary.ImgURL}} alt="Cover" style="max-width: 100%; border: 2px solid black;">
+      {{end}}
     </div>
     <div class="col-xs-8">
       <div>
@@ -38,13 +40,9 @@
             <tr>
               <td>{{$item}}</td>
               <td>
-                <a href="https://httpbin.org/delay/2" hx-get="https://httpbin.org/delay/2"
-                  hx-indicator="#loading-{{$index}}" class="download-link">
-                  Get
-                </a>
-                <span id="loading-{{$index}}" class="htmx-indicator" style="display:none;">
-                  Loading...
-                </span>
+                <a href="https://httpbin.org/delay/2" hx-get="https://httpbin.org/delay/2" hx-trigger="click"
+                  hx-swap="none" hx-on::before-request="this.innerText = 'Loading...';"
+                  hx-on::after-request="this.innerText = 'Get';">Get</a>
               </td>
             </tr>
             {{end}}

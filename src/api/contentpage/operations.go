@@ -45,25 +45,22 @@ func getContentPageData(req *http.Request) ContentPageData {
 
 	content := []string{}
 
-	rawMetadata, metadataErr := readMetadataFromFile(parsedURLData)
-	existentContent, contentErr := readAvailableContentFromFile(parsedURLData)
+	rawMetadata := readMetadataFromFile(parsedURLData)
+	existentContent := readAvailableContentFromDir(parsedURLData)
 
-	if metadataErr != nil || rawMetadata == nil || contentErr != nil || existentContent == nil {
-		log.Printf("Error reading metadata: %v||%v", metadataErr, contentErr)
-		return ContentPageData{
-			Summary: contentSummary,
-			Content: content,
+	if rawMetadata != nil {
+		contentSummary = ContentSummary{
+			ImgURL:    gjson.Get(*rawMetadata, "data.images.jpg.image_url").Str,
+			Name:      gjson.Get(*rawMetadata, "data.title").Str,
+			Published: extractDate(gjson.Get(*rawMetadata, "data.published.from").Str),
+			Authors:   getAuthorsNames(*rawMetadata),
+			Genres:    getGenres(*rawMetadata),
 		}
 	}
-
-	contentSummary = ContentSummary{
-		ImgURL:    gjson.Get(*rawMetadata, "data.images.jpg.image_url").Str,
-		Name:      gjson.Get(*rawMetadata, "data.title").Str,
-		Published: extractDate(gjson.Get(*rawMetadata, "data.published.from").Str),
-		Authors:   getAuthorsNames(*rawMetadata),
-		Genres:    getGenres(*rawMetadata),
+	if existentContent != nil {
+		content = existentContent
 	}
-	content = existentContent
+
 	return ContentPageData{
 		Summary: contentSummary,
 		Content: content,
@@ -182,37 +179,43 @@ func writeMetadataToFile(parsedURLData ParsedURL, data []byte) error {
 	return nil
 }
 
-func readMetadataFromFile(parsedURLData ParsedURL) (*string, error) {
+func readMetadataFromFile(parsedURLData ParsedURL) *string {
 	if parsedURLData.Type == nil || parsedURLData.ID == nil {
-		return nil, nil
+		log.Printf("URL ID type and value are nil")
+		return nil
 	}
 
 	folderName := fmt.Sprintf("(%s-%s) %s", *parsedURLData.Type, *parsedURLData.ID, parsedURLData.Name)
 	metadataFilePath := filepath.Join("media", folderName, "metadata.json")
 
 	if _, err := os.Stat(metadataFilePath); os.IsNotExist(err) {
-		return nil, nil // Metadata file does not exist
+		log.Printf("Metadata file does not exist")
+		return nil
 	}
 
 	data, err := os.ReadFile(metadataFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read metadata file: %w", err)
+		log.Printf("Failed to read metadata file: %v", err)
+		return nil
 	}
 
 	rawData := string(data)
-	return &rawData, nil
+	return &rawData
 }
 
-func readAvailableContentFromFile(parsedURLData ParsedURL) ([]string, error) {
+func readAvailableContentFromDir(parsedURLData ParsedURL) []string {
+	var contentPath string
 	if parsedURLData.Type == nil || parsedURLData.ID == nil {
-		return nil, nil
+		contentPath = filepath.Join("media", parsedURLData.Name)
+	} else {
+
+		folderName := fmt.Sprintf("(%s-%s) %s", *parsedURLData.Type, *parsedURLData.ID, parsedURLData.Name)
+		contentPath = filepath.Join("media", folderName)
 	}
 
-	folderName := fmt.Sprintf("(%s-%s) %s", *parsedURLData.Type, *parsedURLData.ID, parsedURLData.Name)
-	contentPath := filepath.Join("media", folderName)
-
 	if _, err := os.Stat(contentPath); os.IsNotExist(err) {
-		return nil, err
+		log.Printf("Directory path not found %v", err)
+		return nil
 	}
 
 	supportedExtensions := map[string]bool{
@@ -236,10 +239,11 @@ func readAvailableContentFromFile(parsedURLData ParsedURL) ([]string, error) {
 	})
 
 	if err != nil {
-		return nil, err
+		log.Printf("Error while traversing directory", err)
+		return nil
 	}
 
-	return files, nil
+	return files
 }
 
 func getAuthorsNames(metadata string) []string {

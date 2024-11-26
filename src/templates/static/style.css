@@ -24,3 +24,7 @@ table th {
 .clickable {
   cursor: pointer;
 }
+
+.htmx-indicator.htmx-request {
+  display: inline;
+}
