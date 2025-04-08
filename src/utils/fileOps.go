@@ -99,11 +99,11 @@ func ParseURLPath(path string) ParsedURL {
 func GetContentPath(parsedURLData ParsedURL) string {
 	var contentPath string
 	if parsedURLData.Type == nil || parsedURLData.ID == nil {
-		contentPath = filepath.Join("media", parsedURLData.Name)
+		contentPath = filepath.Join("/app/media", parsedURLData.Name)
 	} else {
 
 		folderName := fmt.Sprintf("(%s-%s) %s", *parsedURLData.Type, *parsedURLData.ID, parsedURLData.Name)
-		contentPath = filepath.Join("media", folderName)
+		contentPath = filepath.Join("/app/media", folderName)
 	}
 	return contentPath
 }

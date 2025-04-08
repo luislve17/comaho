@@ -38,9 +38,11 @@ COPY --from=builder /app/src/comaho .
 COPY --from=builder /app/src/templates /app/templates
 
 # Get scripts from KCC project (https://github.com/ciromattia/kcc)
-COPY --from=kcc-container /opt/kcc/kcc-c2e.py /usr/local/bin/kcc-c2e.py
-COPY --from=kcc-container /opt/kcc/kcc-c2p.py /usr/local/bin/kcc-c2p.py
-COPY --from=kcc-container /opt/kcc/kindlecomicconverter /usr/local/bin/kindlecomicconverter
+COPY --from=kcc-container /opt/kcc /opt/kcc
+ENV PYTHONPATH=/opt/kcc:$PYTHONPATH
+RUN ln -s /opt/kcc/kcc-c2e.py /usr/local/bin/kcc-c2e.py && \
+    ln -s /opt/kcc/kcc-c2p.py /usr/local/bin/kcc-c2p.py && \
+    ln -s /opt/kcc/kindlecomicconverter /usr/local/bin/kindlecomicconverter
 
 EXPOSE 8080
 CMD ["./comaho"]
