@@ -1,3 +1,5 @@
+Need to create the folder `/home/pc/Documents/server/media/library` beforehand
+
 Working example of self hosted instance:
 
 ```yaml
@@ -13,3 +15,5 @@ comaho:
     ports:
       - 9090:8080
 ```
+
+Finally, going to `http://<server-ip>:9090/dashboard` should prompt you the initial page
