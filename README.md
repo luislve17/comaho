@@ -11,9 +11,9 @@ comaho:
     volumes:
       - type: bind
         source: /home/pc/Documents/server/media/library  # Map from the directory, to the required app->media lookup
-        target: /app/media
+        target: /app/media  # This is always '/app/media'
     ports:
-      - 9090:8080
+      - 9090:8080  # Map any port you may use
 ```
 
 Finally, going to `http://<server-ip>:9090/dashboard` should prompt you the initial page
@@ -27,9 +27,7 @@ pc@pcS:~/Documents/server/media/library$ tree .
 .
 └── Pluto
     ├── Pluto_v01.cbz
-    ├── Pluto_v01.kepub.epub
     ├── Pluto_v02.cbz
-    ├── Pluto_v02.kepub.epub
     ├── Pluto_v03.cbz
     ├── Pluto_v04.cbz
     ├── Pluto_v05.cbz
@@ -50,7 +48,7 @@ And clicking inside the entry, you will get the content for that folder:
 
 Now, if your folder's name includes the MAL id between parenthesis, like:
 ```
-pc@pc-MINI-S:~/Documents/server/media/library$ mv \(MAL-35737\)\ Pluto/ '(MAL-745) Pluto/'
+pc@pc-MINI-S:~/Documents/server/media/library$ mv Pluto/ '(MAL-745) Pluto/'
 pc@pc-MINI-S:~/Documents/server/media/library$ ls
 '(MAL-745) Pluto'
 ```
