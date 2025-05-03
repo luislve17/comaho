@@ -42,10 +42,30 @@
             <tr>
               <td>{{$item}}</td>
               <td>
-                <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
-                <form action="{{$summary.CurrentPath}}/convert/{{$item}}" method="get" target="dummyframe">
-                  <button type="submit">Convert</button>
-                </form>
+                <iframe name="dummyframe{{$index}}" id="dummyframe{{$index}}" style="display: none;"></iframe>
+                <div style="display: flex; align-items: center; gap: 0.5em;">
+                  <form action="{{$summary.CurrentPath}}/convert/{{$item}}" method="get" target="dummyframe{{$index}}">
+                    <button type="submit">Convert</button>
+                  </form>
+                  <span id="convert-status-{{$index}}"></span>
+                </div>
+                <script>
+                  (function(){
+                    var xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = function() {
+                      if (xhr.readyState === 4 && xhr.status === 200) {
+                        if (xhr.responseText.trim() === "ok") {
+                          var el = document.getElementById("convert-status-{{$index}}");
+                          if (el) {
+                            el.innerText = "[✓]";
+                          }
+                        }
+                      }
+                    };
+                    xhr.open("GET", "{{$summary.CurrentPath}}/convert/{{$item}}/check", true);
+                    xhr.send();
+                  })();
+                </script>
               </td>
 
               <td>

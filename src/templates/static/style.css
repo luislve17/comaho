@@ -25,6 +25,6 @@ table th {
   cursor: pointer;
 }
 
-.htmx-indicator.htmx-request {
-  display: inline;
+.content-table {
+  width: 100%;
 }

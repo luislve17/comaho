@@ -26,6 +26,25 @@ func ConvertContent() http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 	}
 }
+
+func CheckConvertedContent() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		parsedURLData := utils.ParseURLPath(vars["name"])
+		pathInfo := utils.GetContentPath(parsedURLData)
+		sourcePath := filepath.Join(pathInfo, vars["item"])
+		outputFilePath := removeExtensions(sourcePath) + ".kepub.epub"
+
+		if _, err := os.Stat(outputFilePath); err == nil {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
+			return
+		}
+
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
+
 func DownloadConvertedContent() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
