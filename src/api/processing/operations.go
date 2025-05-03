@@ -102,8 +102,15 @@ func ConvertComic2Ebook(comicPath string) {
 	log.Printf("Expected output file: %s", outputFilePath)
 
 	if _, err := os.Stat(outputFilePath); err == nil {
-		log.Printf("File already exists, skipping conversion: %s", outputFilePath)
-		return
+		log.Printf("File already exists: %s. Deleting and converting again", outputFilePath)
+		command := fmt.Sprintf("rm '%s'", outputFilePath)
+		cmd := exec.Command("sh", "-c", command)
+
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			log.Printf("Error during found file removal (%v): %v", err, output)
+			return
+		}
 	}
 
 	command := fmt.Sprintf("kcc-c2e.py -p KoL -m '%s' -o '%s'", comicPath, outputFilePath)
