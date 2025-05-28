@@ -16,7 +16,7 @@ A `compose` working example of a self-hosted instance would look like:
 
 ```yaml
 comaho:
-    image: ghcr.io/luislve17/comaho:0.1-alpha
+    image: ghcr.io/luislve17/comaho:latest
     container_name: comaho
     environment:
       - COMAHO_DOCKER_VOLUME_PATH=/home/pc/Documents/server/media/library  # Any proper existent directory should work
