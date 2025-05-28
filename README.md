@@ -1,5 +1,9 @@
 # COMAHO: Comic and Manga Hosting Manager
 
+![test_status](https://img.shields.io/badge/tests-none-green)
+![language](https://img.shields.io/badge/lang-go-blue)
+![container](https://img.shields.io/badge/deployment-containerized-white)
+
 ## Context
 
 I have a [Kobo Libra 2](https://www.amazon.com/Kobo-Touchscreen-Waterproof-Adjustable-Temperature/dp/B09HSRGZRL), and it has a browser that has this old outdate webkit version for it. So I created a fileserver (?) that converts manga files into epub.
