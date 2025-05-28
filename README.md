@@ -97,6 +97,16 @@ Creating EPUB file...
 The space after the closing parenthesis is also mandatory.
 From your media folder, you will notice a new file `metadata.json` that is used to render this information.
 
+## FAQ
+
+> How are the updates doing? Can we have multi-threaded safe conversions parallelized on quantum realms?
+
+I have to pay bills, please be patient on that
+
+> Why does the UI look like poppy booppy
+
+The Kobo Libra 2 has a really old outdated engine for its browser. I need to work with what it has, plus the usual refresh rate of a e-reader. So no fancy CSS or Javascript for us
+
 ## Credits
 
 * [KCC (Kindle Comic Converter)](https://github.com/ciromattia/kcc)
