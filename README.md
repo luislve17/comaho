@@ -115,3 +115,9 @@ The Kobo Libra 2 has a really old outdated engine for its browser. I need to wor
 
 * [KCC (Kindle Comic Converter)](https://github.com/ciromattia/kcc)
 Currently there is no mechanism to re-trigger the metadata pulling, so in case you messed up the MAL's id, you just need to delete the `metadata.json`, rename your folder and navigate again into the content page of your manga, to re-trigger the pulling.
+
+## Support
+
+You may support the project by donating for any specific feature request.
+
+<a href='https://ko-fi.com/Q5Q0P976H' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
